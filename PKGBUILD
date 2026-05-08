@@ -136,6 +136,38 @@ if [[ ! -v "_archive_format" ]]; then
     fi
   fi
 fi
+if [[ "${_os}" == "Android" ]]; then
+  _locale="C.UTF-8"
+else
+  _locale="$(
+    locale |
+      grep \
+        "LANG=" |
+        awk \
+          -F \
+            "=" \
+          '{print $1}')"
+fi
+if [[ ! -v "_en" ]]; then
+  _en="true"
+  if [[ "${_locale}" == "C.UTF-8" ]]; then
+    _en="true"
+  fi
+fi
+if [[ ! -v "_it" ]]; then
+  _it="true"
+  if [[ "${_locale}" == "it_IT.UTF-8" ]]; then
+    _it="true"
+  fi
+fi
+if [[ ! -v "_like" ]]; then
+  if [[ "${_it}" == "true" ]]; then
+    _like="mo-me-lo-segno"
+  fi
+  if [[ "${_en}" == "true" ]]; then
+    _like="never-gonna-give-you-up"
+  fi
+fi
 if [[ ! -v "_docs" ]]; then
   _docs="true"
 fi
@@ -151,7 +183,7 @@ pkgname=(
 pkgver=2.43+r5+g856c426a7534
 _commit="856c426a753450b8c6861a5b994a564f4fc16d4b"
 _bundle_commit="660c52dc219a6e77f35b5b5d7d0b80e91cc6beb9"
-pkgrel=3
+pkgrel=4
 arch=(
   "aarch64"
   "arm"
@@ -323,16 +355,59 @@ pkgver() {
 
 fi
 
+_git_unbundle() {
+  local \
+    _tarname="${1}" \
+    _bundle \
+    _repo \
+    _msg=()
+  _bundle="${srcdir}/${_tarname}.bundle"
+  _repo="${srcdir}/${_tarname}"
+  _msg=(
+    "Cloning '${_bundle}' into '${_repo}'."
+  )
+  msg \
+    "${_msg[*]}"
+  git \
+    clone \
+      "${_bundle}" \
+      "${_repo}" || \
+  git \
+    -C \
+      "${_repo}" \
+      pull || \
+  true
+}
+
 prepare() {
+  local \
+    _msg=()
+  if [[ "${_evmfs}" == "true" ]]; then
+    if [[ "${_git}" == "false" ]]; then
+      ur \
+        "${_like}"
+    elif [[ "${_git}" == "true" ]]; then
+      _git_unbundle \
+        "${_tarname}"
+      # TODO:
+      #   add bundle update
+    fi
+  fi
   mkdir \
     -p \
     "${_pkg}-build" \
     "lib32-${_pkg}-build"
-  if [[ -d "${_pkg}-${pkgver}" ]]; then
+  if [[ -d "${_tarname}" ]]; then
     ln \
       -s \
       "${_tarname}" \
       "${_pkg}"
+  else
+    _msg=(
+      "Source not found."
+    )
+    echo \
+      "${_msg[*]}"
   fi
   cd \
     "${_pkg}"
