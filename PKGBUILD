@@ -86,6 +86,9 @@ fi
 if [[ ! -v "_git" ]]; then
   _git="true"
 fi
+if [[ ! -v "_offline" ]]; then
+  _offline="false"
+fi
 if [[ ! -v "_ns" ]]; then
   _ns="gnu"
   _ns="themartiancompany"
@@ -135,6 +138,7 @@ pkgname=(
 )
 pkgver=2.43+r5+g856c426a7534
 _commit="856c426a753450b8c6861a5b994a564f4fc16d4b"
+_bundle_commit="660c52dc219a6e77f35b5b5d7d0b80e91cc6beb9"
 pkgrel=1
 arch=(
   "aarch64"
@@ -206,10 +210,19 @@ if [[ "${_offline}" == "true" ]]; then
 fi
 _sum="SKIP"
 _sig_sum="SKIP"
-_bundle_sum="SKIP"
-_bundle_sig_sum="SKIP"
+_bundle_sum="32ec977ff219a3c9fa910b373788e7a02c0d09bfb4c888f9acf384b9354d8b1f"
+_bundle_sig_sum="aeb8abf4adbb2af8b8bde86653c1003d9d8b3e6182a5fcfeac5591cea6ea66a1"
+_bundle_tag_sum="af4509927140a5d80f6267d9ed324b9cb7cdc85274e091dc919578cc10483af2"
+_bundle_tag_sig_sum="92bd33cf7613b1abcae8ca0b1debf27fe9b3b19bdb4d6fc5f0f1619b68a2f97b"
 _github_sum="SKIP"
 _github_sig_sum="SKIP"
+if [[ "${_git}" == "true" ]]; then
+  _sum="${_bundle_sum}"
+  _sig_sum="${_bundle_sig_sum}"
+elif [[ "${_git}" == "false" ]]; then
+  _sum="${_github_sum}"
+  _sig_sum="${_github_sig_sum}"
+fi
 # Dvorak
 _evmfs_ns="0x87003Bd6C074C713783df04f36517451fF34CBEf"
 _evmfs_network="100"
@@ -220,16 +233,46 @@ _evmfs_src="${_tarfile}::${_evmfs_uri}"
 _sig_uri="${_evmfs_dir}/${_sig_sum}"
 _sig_src="${_tarfile}.sig::${_sig_uri}"
 if [[ "${_evmfs}" == "true" ]]; then
-  if [[ "${_git}" == "false" ]]; then
-    _src="${_evmfs_src}"
+  _src="${_evmfs_src}"
+  source+=(
+    "${_sig_src}"
+  )
+  sha256sums+=(
+    "${_sig_sum}"
+  )
+  if [[ "${_git}" == "true" ]]; then
     source+=(
-      "${_sig_src}"
+      "${_bundle_tag_src}"
     )
     sha256sums+=(
-      "${_sig_sum}"
+      "${_bundle_tag_sig_sum}"
     )
   fi
-
+elif [[ "${_evmfs}" == "false" ]]; then
+  if [[ "${_git}" == true ]]; then
+    _src="${_tarname}::git+${_url}#${_tag_name}=${_tag}?signed"
+    _sum="SKIP"
+  elif [[ "${_git}" == false ]]; then
+    _uri=""
+    if [[ "${_git_service}" == "github" ]]; then
+      if [[ "${_tag_name}" == "commit" ]]; then
+        _uri="${_url}/archive/${_commit}.${_archive_format}"
+        _sum="${_github_sum}"
+      fi
+    elif [[ "${_git_service}" == "gitlab" ]]; then
+      if [[ "${_tag_name}" == "commit" ]]; then
+        _uri="${_url}/-/archive/${_tag}/${_tag}.${_archive_format}"
+      fi
+    fi
+    _src="${_tarfile}::${_uri}"
+  fi
+fi
+source+=(
+  "${_src}"
+)
+sha256sums+=(
+  "${_sum}"
+)
 validpgpkeys=(
   # Carlos O'Donell
   "7273542B39962DF7B299931416792B4EA25340F8"
