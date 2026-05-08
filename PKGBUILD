@@ -404,6 +404,36 @@ _git_unbundle() {
   true
 }
 
+_git_unbundle_update() {
+  local \
+    _repo="${1}" \
+    _bundle="${2}" \
+    _repo \
+    _msg=()
+  _bundle_name="$(
+    basename \
+      "${_bundle}")"
+  _msg=(
+    "Updating '${_repo}' from '${_bundle}'."
+  )
+  msg \
+    "${_msg[*]}"
+  git \
+    -C \
+      "${_repo}" \
+      remote \
+        add \
+          "${_bundle_name}" \
+          "${_bundle}" ||
+  true
+  git \
+    -C \
+      "${_repo}" \
+    pull \
+      "${_bundle_name}" || \
+  true
+}
+
 prepare() {
   local \
     _msg=()
@@ -414,8 +444,9 @@ prepare() {
     elif [[ "${_git}" == "true" ]]; then
       _git_unbundle \
         "${_tarname}"
-      # TODO:
-      #   add bundle update
+      _git_unbundle_update \
+        "${srcdir}/${_tarname}" \
+        "${srcdir}/${_bundle_tag_file}"
     fi
   fi
   mkdir \
