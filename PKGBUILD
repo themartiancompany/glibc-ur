@@ -64,6 +64,9 @@
 _os="$(
   uname \
     -o)"
+_arch="$(
+  uname \
+    -m)"
 _evmfs_available="$(
   command \
     -v \
@@ -94,7 +97,20 @@ else
   _compiler="gcc"
   _libcompiler="gcc-libs"
 fi
-
+if [[ ! -v "_multilib" ]]; then
+  if [[ "${_os}" == "GNU/Linux" ]]; then
+    if [[ "${_arch}" == "x86_64" ]]; then
+      _multilib="true"
+    elif [[ "${_arch}" == "i686" ]]; then
+      _multilib="false"
+    else
+      _multilib="false"
+    fi
+  else
+    # Only on GNU x86_64 for now
+    _multilib="false"
+  fi
+fi
 if [[ ! -v "_git" ]]; then
   _git="true"
 fi
@@ -177,13 +193,17 @@ _pkg=glibc
 pkgbase="${_pkg}"
 pkgname=(
   "${pkgbase}"
-  "lib32-${pkgbase}"
   "${pkgbase}-locales"
 )
+if [[ "${_multilib}" == "true" ]]; then
+  pkgname+=(
+    "lib32-${pkgbase}"
+  )
+fi
 pkgver=2.43+r5+g856c426a7534
 _commit="856c426a753450b8c6861a5b994a564f4fc16d4b"
 _bundle_commit="660c52dc219a6e77f35b5b5d7d0b80e91cc6beb9"
-pkgrel=5
+pkgrel=6
 arch=(
   "aarch64"
   "arm"
@@ -208,6 +228,11 @@ makedepends=(
 if [[ "${_git}" == "true" ]]; then
   makedepends+=(
     "git"
+  )
+fi
+if [[ "${_multilib}" == "true" ]]; then
+  makedepends=(
+    "lib32-${_libcompiler}"
   )
 fi
 makedepends_x86_64=(
@@ -496,26 +521,32 @@ build() {
         info
     fi
   )
- if [[ "${CARCH}" == "x86_64"* ]]; then (
-    cd \
-      "lib32-${_pkg}-build"
-    export \
-      CC="gcc -m32 -mstackrealign" \
-      CXX="g++ -m32 -mstackrealign"
-    # remove frame pointer flags due to crashes
-    # of nvidia driver on steam starts
-    # See https://gitlab.archlinux.org/archlinux/packaging/packages/glibc/-/issues/10
-    CFLAGS=${CFLAGS/-fno-omit-frame-pointer -mno-omit-leaf-frame-pointer/}
-    printf \
-      "%s\n" \
-      "${_config_params_multilib[@]}" >> \
-      "configparms"
-    "${srcdir}/${_pkg}/configure" \
-      "${_configure_opts_multilib[@]}"
-    make \
-      -O
-  )
- fi
+  if [[ "${_multilib}" == "true" ]]; then
+    if [[ "${CARCH}" == "x86_64"* ]]; then (
+      cd \
+        "lib32-${_pkg}-build"
+      export \
+        CC="gcc -m32 -mstackrealign" \
+        CXX="g++ -m32 -mstackrealign"
+      # remove frame pointer flags due to crashes
+      # of nvidia driver on steam starts
+      # See https://gitlab.archlinux.org/archlinux/packaging/packages/glibc/-/issues/10
+      CFLAGS=${CFLAGS/-fno-omit-frame-pointer -mno-omit-leaf-frame-pointer/}
+      _cflags=(
+        "${CFLAGS}"
+	# -lunwind
+      )
+      printf \
+        "%s\n" \
+        "${_config_params_multilib[@]}" >> \
+        "configparms"
+      "${srcdir}/${_pkg}/configure" \
+        "${_configure_opts_multilib[@]}"
+      make \
+        -O
+    )
+    fi
+  fi
   # pregenerate locales here
   # instead of in package
   # functions because localedef
