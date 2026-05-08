@@ -177,17 +177,59 @@ if [[ ! -v "_tag" ]]; then
     _tag="${_commit}"
   fi
 fi
-_tarname="${_pkg}-${_tag}"
-_tarfile="${_tarname}.${_archive_format}"
-_url="${_git_http}/${_git_ns}/${_pkg}"
 source=(
-  "${_tarfile}::git+${_url}.git#commit=${_commit}"
   "locale.gen.txt"
   "locale-gen"
   "lib32-${_pkg}.conf"
   "sdt.h"
   "sdt-config.h"
 )
+sha256sums=(
+  "2a7dd6c906b6c54a68f48a21898664a32fdb136cbd9ff7bfd48f01d1aaa649ae"
+  "6932c404fcba3e6ded66a459201b6f8eb94c964fd27ea9e0fcafd0433dcc34a8"
+  "c27424154a6096ae32c0824b785e05de6acef33d9224fd6147d1936be9b4962b"
+  "774061aff612a377714a509918a9e0e0aafce708b87d2d7e06b1bd1f6542fe70"
+  "cdc234959c6fdb43f000d3bb7d1080b0103f4080f5e67bcfe8ae1aaf477812f0"
+)
+_tarname="${_pkg}-${_tag}"
+_tarfile="${_tarname}.${_archive_format}"
+_url="${_git_http}/${_git_ns}/${_pkg}"
+# source=(
+#   "${_tarfile}::git+${_url}.git#commit=${_commit}"
+# )
+_tag="${_commit}"
+_tag_name="commit"
+_tarname="${pkgname}-${_tag}"
+_tarfile="${_tarname}.${_archive_format}"
+if [[ "${_offline}" == "true" ]]; then
+  _url="file://${HOME}/${pkgname}"
+fi
+_sum="SKIP"
+_sig_sum="SKIP"
+_bundle_sum="SKIP"
+_bundle_sig_sum="SKIP"
+_github_sum="SKIP"
+_github_sig_sum="SKIP"
+# Dvorak
+_evmfs_ns="0x87003Bd6C074C713783df04f36517451fF34CBEf"
+_evmfs_network="100"
+_evmfs_address="0x69470b18f8b8b5f92b48f6199dcb147b4be96571"
+_evmfs_dir="evmfs://${_evmfs_network}/${_evmfs_address}/${_evmfs_ns}"
+_evmfs_uri="${_evmfs_dir}/${_sum}"
+_evmfs_src="${_tarfile}::${_evmfs_uri}"
+_sig_uri="${_evmfs_dir}/${_sig_sum}"
+_sig_src="${_tarfile}.sig::${_sig_uri}"
+if [[ "${_evmfs}" == "true" ]]; then
+  if [[ "${_git}" == "false" ]]; then
+    _src="${_evmfs_src}"
+    source+=(
+      "${_sig_src}"
+    )
+    sha256sums+=(
+      "${_sig_sum}"
+    )
+  fi
+
 validpgpkeys=(
   # Carlos O'Donell
   "7273542B39962DF7B299931416792B4EA25340F8"
