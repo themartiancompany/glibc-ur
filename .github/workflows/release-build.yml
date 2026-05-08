@@ -88,6 +88,8 @@ jobs:
     container:
       image:
         termux/termux-docker:${{ matrix.architecture }}
+      options:
+        --privileged
       volumes: 
         - /tmp/node20:/__e/node20
     # approximate environment variables for actions that can't be forced to use entrypoint.sh
@@ -347,7 +349,7 @@ jobs:
       - name:
           Increase pidmax in the container.
         run: |
-          /entrypoint.sh \
+          /entrypoint_root.sh \
              login \
                -c \
              "exec bash '${PWD}/.github/android-pid-max-fix'"
