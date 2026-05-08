@@ -18,15 +18,18 @@ path = [
     "*.desktop",
     "*.hook",
 ]
-SPDX-FileCopyrightText = "Arch Linux contributors"
-SPDX-License-Identifier = "0BSD"
+# SPDX-FileCopyrightText = "Arch Linux contributors"
+# SPDX-License-Identifier = "0BSD"
+SPDX-FileCopyrightText = "Pellegrino Prevete"
+SPDX-License-Identifier = "AGPL3"
 
 [[annotations]]
 path = [
     "lib32-glibc.conf",
 ]
-SPDX-FileCopyrightText = "Arch Linux contributors"
-SPDX-License-Identifier = "0BSD"
+# SPDX-FileCopyrightText = "Arch Linux contributors"
+SPDX-FileCopyrightText = "Pellegrino Prevete"
+SPDX-License-Identifier = "AGPL3"
 
 [[annotations]]
 path = [
@@ -41,5 +44,7 @@ path = [
     "sdt.h",
     "sdt-config.h",
 ]
-SPDX-FileCopyrightText = "Arch Linux contributors"
-SPDX-License-Identifier = "CC0-1.0"
+# SPDX-FileCopyrightText = "Arch Linux contributors"
+# SPDX-License-Identifier = "CC0-1.0"
+SPDX-FileCopyrightText = "Pellegrino Prevete"
+SPDX-License-Identifier = "AGPL3"
