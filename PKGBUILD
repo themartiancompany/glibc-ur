@@ -203,8 +203,10 @@ _url="${_git_http}/${_git_ns}/${_pkg}"
 # )
 _tag="${_commit}"
 _tag_name="commit"
-_tarname="${pkgname}-${_tag}"
+_tarname="${_pkg}-${_tag}"
 _tarfile="${_tarname}.${_archive_format}"
+_bundle_tag_name="${_pkg}-${_bundle_commit}..${_commit}"
+_bundle_tag_file="${_bundle_tag_name}.${_archive_format}"
 if [[ "${_offline}" == "true" ]]; then
   _url="file://${HOME}/${pkgname}"
 fi
@@ -230,8 +232,12 @@ _evmfs_address="0x69470b18f8b8b5f92b48f6199dcb147b4be96571"
 _evmfs_dir="evmfs://${_evmfs_network}/${_evmfs_address}/${_evmfs_ns}"
 _evmfs_uri="${_evmfs_dir}/${_sum}"
 _evmfs_src="${_tarfile}::${_evmfs_uri}"
+_bundle_tag_uri="${_evmfs_dir}/${_bundle_tag_sum}"
+_bundle_tag_src="${_bundle_tag_file}::${_bundle_tag_uri}"
 _sig_uri="${_evmfs_dir}/${_sig_sum}"
 _sig_src="${_tarfile}.sig::${_sig_uri}"
+_bundle_tag_sig_uri="${_evmfs_dir}/${_bundle_tag_sig_sum}"
+_bundle_tag_sig_src="${_bundle_tag_file}.sig::${_bundle_tag_sig_uri}"
 if [[ "${_evmfs}" == "true" ]]; then
   _src="${_evmfs_src}"
   source+=(
@@ -243,8 +249,10 @@ if [[ "${_evmfs}" == "true" ]]; then
   if [[ "${_git}" == "true" ]]; then
     source+=(
       "${_bundle_tag_src}"
+      "${_bundle_tag_sig_src}"
     )
     sha256sums+=(
+      "${_bundle_tag_sum}"
       "${_bundle_tag_sig_sum}"
     )
   fi
