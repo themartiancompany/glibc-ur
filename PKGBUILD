@@ -151,7 +151,7 @@ pkgname=(
 pkgver=2.43+r5+g856c426a7534
 _commit="856c426a753450b8c6861a5b994a564f4fc16d4b"
 _bundle_commit="660c52dc219a6e77f35b5b5d7d0b80e91cc6beb9"
-pkgrel=2
+pkgrel=3
 arch=(
   "aarch64"
   "arm"
@@ -331,7 +331,7 @@ prepare() {
   if [[ -d "${_pkg}-${pkgver}" ]]; then
     ln \
       -s \
-      "${_pkg}-${pkgver}" \
+      "${_tarname}" \
       "${_pkg}"
   fi
   cd \
