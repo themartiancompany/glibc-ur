@@ -64,6 +64,18 @@
 _os="$(
   uname \
     -o)"
+_evmfs_available="$(
+  command \
+    -v \
+    "evmfs" || \
+    true)"
+if [[ ! -v "_evmfs" ]]; then
+  if [[ "${_evmfs_available}" != "" ]]; then
+    _evmfs="true"
+  elif [[ "${_evmfs_available}" == "" ]]; then
+    _evmfs="false"
+  fi
+fi
 if [[ "${_os}" == "Android" ]]; then
   _compiler="clang"
   _libcompiler="llvm-libs"
@@ -216,8 +228,8 @@ _bundle_sum="32ec977ff219a3c9fa910b373788e7a02c0d09bfb4c888f9acf384b9354d8b1f"
 _bundle_sig_sum="aeb8abf4adbb2af8b8bde86653c1003d9d8b3e6182a5fcfeac5591cea6ea66a1"
 _bundle_tag_sum="af4509927140a5d80f6267d9ed324b9cb7cdc85274e091dc919578cc10483af2"
 _bundle_tag_sig_sum="92bd33cf7613b1abcae8ca0b1debf27fe9b3b19bdb4d6fc5f0f1619b68a2f97b"
-_github_sum="SKIP"
-_github_sig_sum="SKIP"
+_github_sum="bca609d83a88b18e9806ee9f0df6ff7bb2c61c18a134f56321b14fb0939bfd12"
+_github_sig_sum="ec42be133e17acb9d759a2a04a1ad82f3b3c835e798afd561a4c275f6921de06"
 if [[ "${_git}" == "true" ]]; then
   _sum="${_bundle_sum}"
   _sig_sum="${_bundle_sig_sum}"
@@ -286,14 +298,14 @@ validpgpkeys=(
   "7273542B39962DF7B299931416792B4EA25340F8"
   # Siddhesh Poyarekar
   "BC7C7372637EC10C57D7AA6579C43DFBF1CF2187"
-)
-b2sums=(
-  '97d1704b3b730c966ba202bb769ee21f0688f7a326f90c33756cb94bb32e954bd8ee2ce27dfcc9c4b6cca2221a337195889c21db25005969736c045b3b0c153e'
-  'c859bf2dfd361754c9e3bbd89f10de31f8e81fd95dc67b77d10cb44e23834b096ba3caa65fbc1bd655a8696c6450dfd5a096c476b3abf5c7e125123f97ae1a72'
-  'bdc313a77d7158768b06864fdee6419b25f9eda5b942a394713bf61e289a37993d003c779761be4a70d9febeee2377ba2912f459e879801e3d80f4d0550a2592'
-  '7c265e6d36a5c0dff127093580827d15519b6c7205c2e1300e82f0fb5b9dd00b6accb40c56581f18179c4fbbc95bd2bf1b900ace867a83accde0969f7b609f8a'
-  'a6a5e2f2a627cc0d13d11a82458cfd0aa75ec1c5a3c7647e5d5a3bb1d4c0770887a3909bfda1236803d5bc9801bfd6251e13483e9adf797e4725332cd0d91a0e'
-  '214e995e84b342fe7b2a7704ce011b7c7fc74c2971f98eeb3b4e677b99c860addc0a7d91b8dc0f0b8be7537782ee331999e02ba48f4ccc1c331b60f27d715678'
+  # Truocolo
+  #   <truocolo@aol.com>
+  '97E989E6CF1D2C7F7A41FF9F95684DBE23D6A3E9'
+  #   <truocolo@0x6E5163fC4BFc1511Dbe06bB605cc14a3e462332b>
+  'F690CBC17BD1F53557290AF51FC17D540D0ADEED'
+  # Pellegrino Prevete (dvorak)
+  #   <dvorak@0x87003Bd6C074C713783df04f36517451fF34CBEf>
+  '12D8E3D7888F741E89F86EE0FEC8567A644F1D16'
 )
 
 if [[ "${_git}" == "true" ]]; then
